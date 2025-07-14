@@ -5,8 +5,7 @@
 2. [Introduction](#introduction)
 3. [Usage](#usage)
 4. [Dependencies](#dependencies)
-5. [Authors](#authors)
-6. [License](#license)
+5. [License](#license)
 
 # Overview
 
