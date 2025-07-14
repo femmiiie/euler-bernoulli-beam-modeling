@@ -2,6 +2,12 @@ import matplotlib.pyplot as plt
 from board import Board
 from functions import *
 
+"""
+Every step in this file corresponds to a portion of the original paper.
+Step 1 is the creation of the structure matrix handled in the Board class, thus not getting its own function.
+Similarly, step 4 is the derivation of the sinusoidal load.
+"""
+
 
 def step2():
 	inorm = lambda i : max(abs(min(i)), max(i))
@@ -90,12 +96,13 @@ def step5_5():
 def step6():
 	E = 1.3 * 10**10
 	diver_board = Board(diver, y_correct, 9.81, 30, 3, 100, 2, E)
-	diver_board.set_n(1280) #optimal value from step 5
+	diver_board.set_n(20)
 	vals = diver_board.solve()
+
+	print(diver_board.get_x_vals())
 
 	for val in vals:
 		print(val)
-
 
 step2()
 step3()

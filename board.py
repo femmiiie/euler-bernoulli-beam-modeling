@@ -3,15 +3,19 @@ from scipy.sparse.linalg import onenormest, inv, spsolve
 import numpy as np
 
 class Board:
-  """
-  f is the weight function at a position on the board x
-  g is gravity
-  w is the width of the board in centimeters
-  d is the thickness of the board in centimeters
-  L is the length of the board in meters
-  
-  E is the Young Modulus of the board
-  I is the area moment of inertia
+  """ Representation of the board for use in main
+
+  Attributes:
+    disp_func: weight function at a position on the board x
+    correct: analytical solution function at a position on the board x
+    g: gravitational constant
+    w: width
+    d: thickness
+    L: length
+    E: Young Modulus
+    I: area moment of inertia
+    inorm: lambda for the inf-norm of a vector
+    n: number of grid steps for the board
   """
   def __init__(self, f, y, g, w, d, p, L, E, n=None):
     self.disp_func = f
@@ -31,6 +35,8 @@ class Board:
 
 
   def set_n(self, n):
+    """Defines the number of grid steps to use in calculations"""
+
     self.n = n
     self.h = self.L / n
     self.b = (self.h**4 / (self.E * self.I)) * np.array([self.f(x) for x in self.get_x_vals()])
@@ -38,6 +44,8 @@ class Board:
 
 
   def get_x_vals(self):
+    """Returns the set of n equally spaced x values along the board"""
+
     if self.n is None:
       return None
     
@@ -45,6 +53,8 @@ class Board:
 
 
   def get_correct(self):
+    """Returns the analytical solution of the board without weight"""
+
     return [self.correct(
       self.h*i, 
       self.f(self.h*i), 
@@ -57,12 +67,18 @@ class Board:
 
 
   def get_fe(self):
+    """Gets the forward error of the solution compared to correct"""
+
     x_c = self.solve()
     correct = self.get_correct()
     return [x_c[i] - correct[i] for i in range(self.n)]
 
 
   def solve(self, n=None):
+    """
+    
+    """
+
     if n is not None:
       self.set_n(n)
 
@@ -70,6 +86,8 @@ class Board:
     
   
   def f(self, x):
+    """Wrapper function for disp_func"""
+
     return self.disp_func(
       x, 
       self.g, 
@@ -81,6 +99,12 @@ class Board:
 
 
   def pow_2_chart(self, k):
+    """Iterates through power of 2 grid steps and collects metrics on them
+    
+    Args:
+      k: Amount of iterations to perform
+    """
+
     n = []
     fe = []
     cond = []
@@ -93,10 +117,9 @@ class Board:
       x.append(x_c[-1])
       fe.append(self.inorm(self.get_fe()))
 
-      #if you want this code to run quickly, comment out this line, and uncomment the other one
-      #i still have not been able to find an accurate + quick method of find the 1-norm or inf-norm of a sparse matrix in python 
+      #there is no known way of quickly finding the condition number of a large sparse matrix in python to my knowledge
+      #if runtime is a concern, comment out this line and instead just append 1 to cond
       cond.append(onenormest(inv(self.A.tocsc()).dot(self.A.tocsc())))
-      # cond.append(1)
 
     print("--------------------------------------------------")
     print("|   n   |     x_n      |      fe      |  cond    |")
@@ -107,6 +130,8 @@ class Board:
 
 
   def create_structure_matrix(self, n):
+    """Creates an nxn structure matrix defined in the paper"""
+
     A = lil_matrix((n, n))  
     
     #first row boundary case
@@ -128,4 +153,4 @@ class Board:
     A[-2, -4:] = [16/17, -60/17, 72/17, -28/17]
     A[-1, -4:] = [-12/17, 96/17, -156/17, 72/17]
 
-    self.A = A.tocsr()
+    self.A = A.tocsr() #store as CSR for space efficiency
