@@ -44,6 +44,8 @@ For ease of use, comment out the steps not being used at the bottom of main.py a
 # Dependencies
 
 - [matplotlib](https://matplotlib.org/)
+- [scipy](https://scipy.org/)
+- [numpy](https://numpy.org/)
 
 
 # License
